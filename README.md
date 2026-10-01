@@ -2,7 +2,7 @@
 
 Tether ties each of my mods to the library mods it needs, like [Collective](https://modrinth.com/mod/collective). It works out which loader a project is for (Common, Fabric, Forge or NeoForge) and which Minecraft version it targets, and adds the right dependencies for that combination. That way every build file stays the same, no matter the loader or version.
 
-The mod itself decides what gets added. A library is added when the code imports it (`import com.natamus.<library>.`) and `Common/src/main/resources/META-INF/mods.toml` lists it as a required dependency. Its version is the lowest one in that dependency's `versionRange`, so `[8.40,)` means 8.40. When the code imports a library that `mods.toml` doesn't require, the build stops and says so.
+The mod itself decides what gets added. A library is added when the code imports it and `Common/src/main/resources/META-INF/mods.toml` lists it as a required dependency. The library's version is the lowest one in that dependency's `versionRange`, so `[8.40,)` means 8.40. When the code imports a library that `mods.toml` doesn't require, the build stops and says so.
 
 It is used by the public source of the mods, so you only need it if you want to build one of them yourself.
 

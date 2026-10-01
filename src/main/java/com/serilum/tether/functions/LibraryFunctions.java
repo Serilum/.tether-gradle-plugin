@@ -16,7 +16,7 @@ public class LibraryFunctions {
 		File rootDir = project.getRootDir();
 		String modId = ProjectFunctions.getProperty(project, "mod_id");
 
-		List<String> importedPackages = SourceFunctions.getImportedNatamusPackages(rootDir);
+		List<String> importedPackages = SourceFunctions.getImportedLibraryPackages(rootDir);
 		importedPackages.remove(modId);
 		if (importedPackages.isEmpty()) {
 			return libraries;
@@ -30,7 +30,7 @@ public class LibraryFunctions {
 		HashMap<String, String> requiredDependencies = ManifestFunctions.getRequiredDependencies(modsToml);
 		for (String importedPackage : importedPackages) {
 			if (!requiredDependencies.containsKey(importedPackage)) {
-				throw libraryError("The code imports com.natamus." + importedPackage + ", but mods.toml does not list '" + importedPackage + "' as a required dependency.");
+				throw libraryError("The code imports the '" + importedPackage + "' library, but mods.toml does not list '" + importedPackage + "' as a required dependency.");
 			}
 
 			String version = ManifestFunctions.getMinimumVersion(requiredDependencies.get(importedPackage));
