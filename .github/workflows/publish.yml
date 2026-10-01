@@ -1,0 +1,64 @@
+name: Publish to maven.serilum.com
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - 'src/**'
+      - 'build.gradle'
+      - 'settings.gradle'
+
+concurrency:
+  group: publish
+  cancel-in-progress: false
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          path: tether
+
+      - uses: actions/checkout@v4
+        with:
+          repository: Serilum/.maven
+          ref: maven
+          path: .maven
+          token: ${{ secrets.MAVEN_PUSH_TOKEN }}
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Read the version
+        id: version
+        run: echo "version=$(grep -oP "^version = '\K[^']+" tether/build.gradle)" >> "$GITHUB_OUTPUT"
+
+      - name: Skip a version that is already published
+        id: check
+        run: |
+          if [ -d ".maven/com/serilum/tether/${{ steps.version.outputs.version }}" ]; then
+            echo "Tether ${{ steps.version.outputs.version }} is already on the maven. Bump the version in build.gradle to publish a new one."
+            echo "published=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Build and publish into the maven checkout
+        if: steps.check.outputs.published != 'true'
+        working-directory: tether
+        run: |
+          chmod +x gradlew
+          ./gradlew publishAllPublicationsToSerilumMavenRepository
+
+      - name: Push to Serilum/.maven
+        if: steps.check.outputs.published != 'true'
+        working-directory: .maven
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add com/serilum
+          git commit -m "Updated Tether to version ${{ steps.version.outputs.version }}."
+          git pull --rebase origin maven
+          git push origin maven

@@ -1,0 +1,31 @@
+plugins {
+	id 'java-gradle-plugin'
+	id 'maven-publish'
+}
+
+group = 'com.serilum'
+version = '1.0'
+
+// Compiled for Java 17 and built with Gradle 8.8, so the 1.20.1 and 1.21.1 workspaces can load it too.
+tasks.withType(JavaCompile).configureEach {
+	options.release = 17
+	options.encoding = 'UTF-8'
+}
+
+gradlePlugin {
+	plugins {
+		tether {
+			id = 'com.serilum.tether'
+			implementationClass = 'com.serilum.tether.Tether'
+		}
+	}
+}
+
+publishing {
+	repositories {
+		maven {
+			name = 'SerilumMaven'
+			url = layout.projectDirectory.dir('../.maven')
+		}
+	}
+}
