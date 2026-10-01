@@ -7,13 +7,8 @@ import org.gradle.api.artifacts.Dependency;
 
 public class DependencyFunctions {
 	public static void addLibrary(Project project, String loader, Library library) {
-		String libraryVersion = ProjectFunctions.getProperty(project, library.versionProperty);
-		if (libraryVersion.equals("")) {
-			return;
-		}
-
 		String minecraftVersion = ProjectFunctions.getMinecraftVersion(project);
-		String version = minecraftVersion + "-" + libraryVersion;
+		String version = minecraftVersion + "-" + library.version;
 
 		String loaderArtifact = library.mavenGroup + ":" + library.modId + "-" + loader + ":" + version;
 		String mergedArtifact = library.mavenGroup + ":" + library.modId + ":" + version;

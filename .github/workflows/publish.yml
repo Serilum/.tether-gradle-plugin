@@ -58,7 +58,8 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add com/serilum
+          find com/serilum -type f \( -name '*.md5' -o -name '*.sha1' -o -name '*.sha256' -o -name '*.sha512' \) -delete
+          git add -A com/serilum
           git commit -m "Updated Tether to version ${{ steps.version.outputs.version }}."
           git pull --rebase origin maven
           git push origin maven
