@@ -31,9 +31,11 @@ public class DependencyFunctions {
 		}
 
 		if (loader.equals("forge") && ProjectFunctions.forgeUsesDeobf(minecraftVersion)) {
-			addDependency(project, "runtimeOnly", deobf(project, loaderArtifact));
-			addDependency(project, "compileOnly", deobf(project, loaderArtifact));
-			addDependency(project, "compileOnly", deobf(project, mergedArtifact));
+			project.getPluginManager().withPlugin("net.minecraftforge.gradle", forgeGradlePlugin -> {
+				addDependency(project, "runtimeOnly", deobf(project, loaderArtifact));
+				addDependency(project, "compileOnly", deobf(project, loaderArtifact));
+				addDependency(project, "compileOnly", deobf(project, mergedArtifact));
+			});
 			return;
 		}
 
@@ -60,7 +62,7 @@ public class DependencyFunctions {
 	private static Object deobf(Project project, String artifact) {
 		Object forgeGradle = project.getExtensions().findByName("fg");
 		if (forgeGradle == null) {
-			throw new GradleException("[Tether] ForgeGradle's 'fg' extension is missing. Apply com.serilum.tether after net.minecraftforge.gradle.");
+			throw new GradleException("[Tether] ForgeGradle is applied, but its 'fg' extension is missing.");
 		}
 
 		try {
