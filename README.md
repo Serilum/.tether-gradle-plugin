@@ -4,6 +4,8 @@ Tether ties each of my mods to the library mods it needs, like [Collective](http
 
 The mod itself decides what gets added. A library is added when the code imports it and `Common/src/main/resources/META-INF/mods.toml` lists it as a required dependency. The library's version is the lowest one in that dependency's `versionRange`, so `[8.40,)` means 8.40. When the code imports a library that `mods.toml` doesn't require, the build stops and says so.
 
+The libraries come from [maven.serilum.com](https://maven.serilum.com/), in the `com.serilum.<library>` group. The one exception is Collective for Minecraft 26.3.0 and older, which stays in `com.natamus.collective-ml`.
+
 It is used by the public source of the mods, so you only need it if you want to build one of them yourself.
 
 ## Using it

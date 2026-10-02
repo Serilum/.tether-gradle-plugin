@@ -38,7 +38,7 @@ public class LibraryFunctions {
 				throw libraryError("The '" + importedPackage + "' dependency in mods.toml has no minimum version in its versionRange.");
 			}
 
-			libraries.add(new Library(importedPackage, version));
+			libraries.add(new Library(importedPackage, version, ProjectFunctions.getMinecraftVersion(project)));
 		}
 
 		return libraries;
