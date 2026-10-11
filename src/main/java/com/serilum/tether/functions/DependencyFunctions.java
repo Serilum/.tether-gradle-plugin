@@ -8,10 +8,10 @@ import org.gradle.api.artifacts.Dependency;
 public class DependencyFunctions {
 	public static void addLibrary(Project project, String loader, Library library) {
 		String minecraftVersion = ProjectFunctions.getMinecraftVersion(project);
-		String version = minecraftVersion + "-" + library.version;
 
-		String loaderArtifact = library.mavenGroup + ":" + library.modId + "-" + loader + ":" + version;
-		String mergedArtifact = library.mavenGroup + ":" + library.modId + ":" + version;
+		String loaderArtifact = getArtifactNotation(project, library, "-" + loader);
+		// The merged jar is only for compiling, it has the _common_ packages a split release build imports.
+		String mergedArtifact = getArtifactNotation(project, library, "");
 
 		if (loader.equals("common")) {
 			addDependency(project, "compileOnly", loaderArtifact);
@@ -31,10 +31,13 @@ public class DependencyFunctions {
 		}
 
 		if (loader.equals("forge") && ProjectFunctions.forgeUsesDeobf(minecraftVersion)) {
+			// 1.20.1 applies ForgeGradle after the plugins block, so fg.deobf only exists once it's there.
 			project.getPluginManager().withPlugin("net.minecraftforge.gradle", forgeGradlePlugin -> {
 				addDependency(project, "runtimeOnly", deobf(project, loaderArtifact));
 				addDependency(project, "compileOnly", deobf(project, loaderArtifact));
 				addDependency(project, "compileOnly", deobf(project, mergedArtifact));
+				// Forge compiles Common's source into its tests as well, which fails without the library.
+				addDependency(project, "testCompileOnly", deobf(project, loaderArtifact));
 			});
 			return;
 		}
@@ -42,6 +45,11 @@ public class DependencyFunctions {
 		addDependency(project, "runtimeOnly", loaderArtifact);
 		addDependency(project, "compileOnly", loaderArtifact);
 		addDependency(project, "compileOnly", mergedArtifact);
+	}
+
+	public static String getArtifactNotation(Project project, Library library, String artifactSuffix) {
+		String version = ProjectFunctions.getMinecraftVersion(project) + "-" + library.version;
+		return library.mavenGroup + ":" + library.modId + artifactSuffix + ":" + version;
 	}
 
 	private static void addDependency(Project project, String configurationName, Object notation) {

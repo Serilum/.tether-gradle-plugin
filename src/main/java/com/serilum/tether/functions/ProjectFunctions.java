@@ -27,6 +27,10 @@ public class ProjectFunctions {
 		return value.toString();
 	}
 
+	public static boolean isToggledOn(Project project, String toggle) {
+		return !getProperty(project, toggle).equals("false");
+	}
+
 	public static String getMinecraftVersion(Project project) {
 		String displayVersion = getProperty(project, "minecraft_display_version");
 		if (!displayVersion.equals("")) {

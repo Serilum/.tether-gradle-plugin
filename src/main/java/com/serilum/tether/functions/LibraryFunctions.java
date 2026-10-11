@@ -17,6 +17,7 @@ public class LibraryFunctions {
 		String modId = ProjectFunctions.getProperty(project, "mod_id");
 
 		List<String> importedPackages = SourceFunctions.getImportedLibraryPackages(rootDir);
+		// The mod's own package shows up as an import too, but it's not a library.
 		importedPackages.remove(modId);
 		if (importedPackages.isEmpty()) {
 			return libraries;

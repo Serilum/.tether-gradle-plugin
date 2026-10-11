@@ -23,6 +23,31 @@ public class SourceFunctions {
 		return packages;
 	}
 
+	public static boolean isSplitSource(File projectDir, String loader) {
+		// A split source is one of my own release builds. Its imports already use the _common_ packages, so the jar is left alone.
+		File javaDir = new File(projectDir, "src" + File.separator + "main" + File.separator + "java");
+		return containsFolderEndingWith(javaDir, "_common_" + loader);
+	}
+
+	private static boolean containsFolderEndingWith(File folder, String suffix) {
+		File[] children = folder.listFiles();
+		if (children == null) {
+			return false;
+		}
+
+		for (File child : children) {
+			if (!child.isDirectory()) {
+				continue;
+			}
+
+			if (child.getName().endsWith(suffix) || containsFolderEndingWith(child, suffix)) {
+				return true;
+			}
+		}
+
+		return false;
+	}
+
 	private static void collectImports(File file, List<String> packages) {
 		if (file.isDirectory()) {
 			File[] children = file.listFiles();
