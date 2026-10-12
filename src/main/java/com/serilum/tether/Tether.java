@@ -4,6 +4,7 @@ import com.serilum.tether.data.Library;
 import com.serilum.tether.functions.DependencyFunctions;
 import com.serilum.tether.functions.LibraryFunctions;
 import com.serilum.tether.functions.LinkFunctions;
+import com.serilum.tether.functions.LocalFunctions;
 import com.serilum.tether.functions.ProjectFunctions;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
@@ -41,8 +42,9 @@ public class Tether implements Plugin<Project> {
 			}
 		}
 
-		if (linkJar) {
-			LinkFunctions.linkBuiltJar(project, loader, libraries);
+		List<Library> releasedLibraries = LocalFunctions.getReleasedLibraries(project, libraries);
+		if (linkJar && !releasedLibraries.isEmpty()) {
+			LinkFunctions.linkBuiltJar(project, loader, releasedLibraries);
 		}
 	}
 }

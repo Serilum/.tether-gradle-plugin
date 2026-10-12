@@ -7,6 +7,11 @@ import org.gradle.api.artifacts.Dependency;
 
 public class DependencyFunctions {
 	public static void addLibrary(Project project, String loader, Library library) {
+		if (LocalFunctions.isLocal(project, library)) {
+			LocalFunctions.addLocalLibrary(project, loader, library);
+			return;
+		}
+
 		String minecraftVersion = ProjectFunctions.getMinecraftVersion(project);
 
 		String loaderArtifact = getArtifactNotation(project, library, "-" + loader);
@@ -52,7 +57,7 @@ public class DependencyFunctions {
 		return library.mavenGroup + ":" + library.modId + artifactSuffix + ":" + version;
 	}
 
-	private static void addDependency(Project project, String configurationName, Object notation) {
+	public static void addDependency(Project project, String configurationName, Object notation) {
 		project.getConfigurations().configureEach(configuration -> {
 			if (!configuration.getName().equals(configurationName)) {
 				return;

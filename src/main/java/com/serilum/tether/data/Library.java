@@ -6,11 +6,13 @@ public class Library {
 	public String modId;
 	public String mavenGroup;
 	public String version;
+	public String minecraftVersion;
 
 	public Library(String modId, String version, String minecraftVersion) {
 		this.modId = modId;
 		this.mavenGroup = getMavenGroup(modId, minecraftVersion);
 		this.version = version;
+		this.minecraftVersion = minecraftVersion;
 	}
 
 	private static String getMavenGroup(String modId, String minecraftVersion) {

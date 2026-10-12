@@ -11,10 +11,11 @@ import java.util.List;
 
 public class LibraryFunctions {
 	public static List<Library> getLibraries(Project project) {
-		List<Library> libraries = new ArrayList<>();
+		return getLibraries(project.getRootDir(), ProjectFunctions.getProperty(project, "mod_id"), ProjectFunctions.getMinecraftVersion(project));
+	}
 
-		File rootDir = project.getRootDir();
-		String modId = ProjectFunctions.getProperty(project, "mod_id");
+	public static List<Library> getLibraries(File rootDir, String modId, String minecraftVersion) {
+		List<Library> libraries = new ArrayList<>();
 
 		List<String> importedPackages = SourceFunctions.getImportedLibraryPackages(rootDir);
 		// The mod's own package shows up as an import too, but it's not a library.
@@ -39,7 +40,7 @@ public class LibraryFunctions {
 				throw libraryError("The '" + importedPackage + "' dependency in mods.toml has no minimum version in its versionRange.");
 			}
 
-			libraries.add(new Library(importedPackage, version, ProjectFunctions.getMinecraftVersion(project)));
+			libraries.add(new Library(importedPackage, version, minecraftVersion));
 		}
 
 		return libraries;
