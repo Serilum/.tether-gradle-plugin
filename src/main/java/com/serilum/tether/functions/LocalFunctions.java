@@ -20,6 +20,7 @@ import java.util.List;
 public class LocalFunctions {
 	private static final String[] LOADER_FOLDERS = { "Common", "Fabric", "Forge", "NeoForge" };
 	private static final String LOCAL_LOADERS_PROPERTY = "tetherLocalLoaders";
+	private static final String EMPTY_PROJECT_LIBRARY = "collective";
 
 	private static final Logger LOGGER = Logging.getLogger(TetherLocal.class);
 
@@ -32,10 +33,24 @@ public class LocalFunctions {
 		String minecraftVersion = SettingsFunctions.getMinecraftVersion(settings);
 		List<String> localLoaders = new ArrayList<>();
 
-		for (Library library : LibraryFunctions.getLibraries(settings.getRootDir(), modId, minecraftVersion)) {
+		boolean emptyProject = !SourceFunctions.hasSource(settings.getRootDir());
+		List<Library> libraries = LibraryFunctions.getLibraries(settings.getRootDir(), modId, minecraftVersion);
+		if (emptyProject) {
+			libraries.add(new Library(EMPTY_PROJECT_LIBRARY, "", minecraftVersion));
+		}
+
+		for (Library library : libraries) {
 			File localFolder = getLocalFolder(settings.getRootDir(), library);
+			if (isSameFolder(localFolder, settings.getRootDir())) {
+				continue;
+			}
+
 			String librarySettings = readSettings(localFolder);
 			if (!librarySettings.contains("com.serilum.tether.local")) {
+				if (emptyProject) {
+					continue;
+				}
+
 				LOGGER.lifecycle("[Tether] tether_local is on, but there's no " + localFolder.getName() + " folder with Tether's local plugin next to this one. Using the released " + library.modId + " instead.");
 				continue;
 			}
@@ -104,6 +119,10 @@ public class LocalFunctions {
 
 	private static String getLocalLoaderKey(File localFolder, String loaderFolder) {
 		return new File(localFolder, loaderFolder).toPath().toAbsolutePath().normalize().toString();
+	}
+
+	private static boolean isSameFolder(File folder, File otherFolder) {
+		return folder.toPath().toAbsolutePath().normalize().equals(otherFolder.toPath().toAbsolutePath().normalize());
 	}
 
 	private static String readSettings(File localFolder) {
