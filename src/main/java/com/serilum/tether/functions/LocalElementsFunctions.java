@@ -13,6 +13,7 @@ import org.gradle.api.tasks.SourceSetContainer;
 import org.gradle.api.tasks.TaskProvider;
 import org.gradle.jvm.tasks.Jar;
 
+import java.io.File;
 import java.util.List;
 
 public class LocalElementsFunctions {
@@ -36,12 +37,14 @@ public class LocalElementsFunctions {
 
 		TaskProvider<Jar> localJar = project.getTasks().register("tetherLocalJar", Jar.class, jar -> {
 			jar.from(main.getOutput());
-			jar.getArchiveClassifier().set("tether-local");
+			// A new file per build, so a game that's still running keeps reading its own jar. Windows won't delete that one while it's open, a later build does.
+			jar.getArchiveClassifier().set("tether-local-" + System.currentTimeMillis());
 			jar.getDestinationDirectory().set(project.getLayout().getBuildDirectory().dir("tether"));
 			jar.setDuplicatesStrategy(DuplicatesStrategy.EXCLUDE);
 			jar.manifest(manifest -> manifest.from(project.getTasks().named("jar", Jar.class).get().getManifest()));
 			// MixinGradle only adds MixinConfigs to the jar's manifest once this task has run (1.20.1 Forge).
 			jar.dependsOn(project.provider(() -> getMixinTasks(project)));
+			jar.doLast(task -> deleteOldLocalJars(jar.getArchiveFile().get().getAsFile()));
 		});
 
 		ObjectFactory objects = project.getObjects();
@@ -57,6 +60,19 @@ public class LocalElementsFunctions {
 			configuration.getOutgoing().capability(LocalFunctions.getCapability(modId, loader) + ":" + project.getVersion());
 			configuration.getOutgoing().artifact(localJar);
 		});
+	}
+
+	private static void deleteOldLocalJars(File newJar) {
+		File[] files = newJar.getParentFile().listFiles();
+		if (files == null) {
+			return;
+		}
+
+		for (File file : files) {
+			if (file.getName().contains("-tether-local") && !file.equals(newJar)) {
+				boolean ignored = file.delete();
+			}
+		}
 	}
 
 	private static List<Object> getMixinTasks(Project project) {
