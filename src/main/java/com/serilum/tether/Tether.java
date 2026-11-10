@@ -6,6 +6,7 @@ import com.serilum.tether.functions.LibraryFunctions;
 import com.serilum.tether.functions.LinkFunctions;
 import com.serilum.tether.functions.LocalFunctions;
 import com.serilum.tether.functions.ProjectFunctions;
+import com.serilum.tether.functions.RunModsFunctions;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
 
@@ -25,7 +26,8 @@ public class Tether implements Plugin<Project> {
 
 		boolean addDependencies = ProjectFunctions.isToggledOn(project, "tether_dependencies");
 		boolean linkJar = ProjectFunctions.isToggledOn(project, "tether_link");
-		if (!addDependencies && !linkJar) {
+		boolean unlinkRunMods = ProjectFunctions.isToggledOn(project, "tether_run_mods");
+		if (!addDependencies && !linkJar && !unlinkRunMods) {
 			return;
 		}
 
@@ -45,6 +47,10 @@ public class Tether implements Plugin<Project> {
 		List<Library> releasedLibraries = LocalFunctions.getReleasedLibraries(project, libraries);
 		if (linkJar && !releasedLibraries.isEmpty()) {
 			LinkFunctions.linkBuiltJar(project, loader, releasedLibraries);
+		}
+
+		if (unlinkRunMods) {
+			RunModsFunctions.unlinkRunMods(project, loader, libraries);
 		}
 	}
 }

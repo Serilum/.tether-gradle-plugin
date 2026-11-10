@@ -10,6 +10,7 @@ import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
@@ -74,6 +75,10 @@ public class RenameFunctions {
 				renamedValue = renamedValue.substring(0, start) + replacement + renamedValue.substring(end);
 				start = renamedValue.indexOf(prefix, start + replacement.length());
 			}
+		}
+
+		for (Map.Entry<String, String> packageName : renames.packageNames.entrySet()) {
+			renamedValue = renamedValue.replace(packageName.getKey().replace('/', separator), packageName.getValue().replace('/', separator));
 		}
 
 		return renamedValue;

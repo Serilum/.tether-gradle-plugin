@@ -7,4 +7,5 @@ import java.util.List;
 public class ClassRenames {
 	public HashMap<String, String> internalNames = new HashMap<>();
 	public List<String> roots = new ArrayList<>();
+	public HashMap<String, String> packageNames = new HashMap<>();
 }

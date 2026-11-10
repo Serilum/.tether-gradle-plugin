@@ -8,6 +8,8 @@ A library is added when the code imports it and `Common/src/main/resources/META-
 
 The jars I upload merge all loaders into one, so Collective's common code is moved into a package per loader there. Tether links a jar built from the source to those packages. Without that, it would crash with a `NoClassDefFoundError`.
 
+It also works the other way around: a released jar of one of my mods, put in the `mods` folder of a dev run (`runClient`, `runServer`), is unlinked from those packages before the game starts, so it runs next to the mod you're working on.
+
 ## Toggles
 
 Everything is on by default. Each part can be turned off with a line in a `gradle.properties` file:
@@ -17,6 +19,7 @@ Everything is on by default. Each part can be turned off with a line in a `gradl
 | `tether_enabled=false` | Tether as a whole. |
 | `tether_dependencies=false` | Adding the libraries as dependencies. |
 | `tether_link=false` | Linking the built jar to the released libraries. |
+| `tether_run_mods=false` | Unlinking released jars in a dev run's `mods` folder. |
 
 ## Building one of my mods
 
