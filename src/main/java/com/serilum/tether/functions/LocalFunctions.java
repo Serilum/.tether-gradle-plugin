@@ -7,6 +7,7 @@ import org.gradle.api.Project;
 import org.gradle.api.artifacts.DependencySubstitutions;
 import org.gradle.api.artifacts.ModuleDependency;
 import org.gradle.api.initialization.Settings;
+import org.gradle.api.invocation.Gradle;
 import org.gradle.api.logging.Logger;
 import org.gradle.api.logging.Logging;
 import org.gradle.api.plugins.ExtraPropertiesExtension;
@@ -68,7 +69,7 @@ public class LocalFunctions {
 	}
 
 	public static boolean isLocal(Project project, Library library) {
-		ExtraPropertiesExtension extraProperties = project.getGradle().getExtensions().getExtraProperties();
+		ExtraPropertiesExtension extraProperties = getModBuild(project.getGradle()).getExtensions().getExtraProperties();
 		if (!extraProperties.has(LOCAL_LOADERS_PROPERTY)) {
 			return false;
 		}
@@ -111,6 +112,15 @@ public class LocalFunctions {
 		ModuleDependency dependency = (ModuleDependency)project.getDependencies().create(loaderArtifact);
 		dependency.capabilities(capabilities -> capabilities.requireCapability(getCapability(library.modId, loader)));
 		return dependency;
+	}
+
+	private static Gradle getModBuild(Gradle gradle) {
+		Gradle modBuild = gradle;
+		while (modBuild.getParent() != null) {
+			modBuild = modBuild.getParent();
+		}
+
+		return modBuild;
 	}
 
 	private static File getLocalFolder(File rootDir, Library library) {
